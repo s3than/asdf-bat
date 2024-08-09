@@ -26,12 +26,12 @@ sort_versions() {
 }
 
 list_github_tags() {
-    cmd="curl --silent --location $curl_opts"
-    releases_path="https://api.github.com/repos/$REPO_ORG/$TOOL_NAME/releases"
+	cmd="curl --silent --location ${curl_opts[*]}"
+	releases_path="https://api.github.com/repos/$REPO_ORG/$TOOL_NAME/releases"
 
-    versions=$(eval "$cmd $releases_path" | grep -oE "tag_name\":\s?\".*\"," | sed 's/tag_name\": *\"//;s/\",//' | grep -v "nightly")
+	versions=$(eval "$cmd $releases_path" | grep -oE "tag_name\":\s?\".*\"," | sed 's/tag_name\": *\"//;s/\",//' | grep -v "nightly")
 
-    echo "$versions"
+	echo "$versions"
 }
 
 list_all_versions() {
@@ -45,7 +45,7 @@ get_arch() {
 	if [ "$arch" = "darwin" ]; then
 		echo "apple-$arch.tar.gz"
 	elif [ "$arch" = "linux" ]; then
-        echo "unknown-$arch-musl.tar.gz"
+		echo "unknown-$arch-musl.tar.gz"
 	else
 		echo "$arch"
 	fi
@@ -76,8 +76,8 @@ download_release() {
 	filename="$2"
 
 	if [ "$version" == "latest" ]; then
-        version=$(list_all_versions | sort_versions | tail -n 1)
-    fi
+		version=$(list_all_versions | sort_versions | tail -n 1)
+	fi
 
 	# TODO: Adapt the release URL convention for bat
 	# https://github.com/sharkdp/bat/releases/download/v0.24.0/bat-v0.24.0-x86_64-unknown-linux-gnu.tar.gz

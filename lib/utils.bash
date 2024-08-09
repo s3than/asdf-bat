@@ -42,9 +42,9 @@ list_all_versions() {
 get_arch() {
 	arch=$(uname | tr '[:upper:]' '[:lower:]')
 	if [ "$arch" = "darwin" ]; then
-		echo "apple-$arch.tar.gz"
+		echo "apple-$arch"
 	elif [ "$arch" = "linux" ]; then
-		echo "unknown-$arch-musl.tar.gz"
+		echo "unknown-$arch-musl"
 	else
 		echo "$arch"
 	fi
@@ -80,10 +80,21 @@ download_release() {
 
 	# TODO: Adapt the release URL convention for bat
 	# https://github.com/sharkdp/bat/releases/download/v0.24.0/bat-v0.24.0-x86_64-unknown-linux-gnu.tar.gz
-	url="$GH_REPO/releases/download/v${version}/bat-v${version}-${cpu}-${platform}"
+	url="$GH_REPO/releases/download/v${version}/${TOOL_NAME}-v${version}-${cpu}-${platform}.tar.gz"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" "$url" || fail "Could not download $url"
+
+	#  Extract contents of tar.gz file into the download directory
+	tar -zxvf "$filename" -C "$ASDF_DOWNLOAD_PATH" ${TOOL_NAME}-v"${version}"-"${cpu}"-"${platform}"/${TOOL_NAME} || fail "Could not extract $filename"
+
+	cp "${ASDF_DOWNLOAD_PATH}"/${TOOL_NAME}-v"${version}"-"${cpu}"-"${platform}"/${TOOL_NAME} "$ASDF_DOWNLOAD_PATH"/${TOOL_NAME}
+
+	chmod +x "${ASDF_DOWNLOAD_PATH}"/${TOOL_NAME} || fail "Could not make $TOOL_NAME executable"
+
+	rm -rf "${ASDF_DOWNLOAD_PATH}"/${TOOL_NAME}-v"${version}"-"${cpu}"-"${platform}"
+	# Remove the tgz file since we don't need to keep it
+	rm "$filename"
 }
 
 install_version() {
@@ -97,7 +108,9 @@ install_version() {
 
 	(
 		mkdir -p "$install_path"
+
 		cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
+		# chmod +x "$install_path/bat"
 
 		# TODO: Assert bat executable exists.
 		local tool_cmd

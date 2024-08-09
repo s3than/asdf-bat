@@ -13,10 +13,10 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macos-latest
+          # - macos-latest No macOS arm support yet
     runs-on: ${{ matrix.os }}
     steps:
       - name: asdf_plugin_test
         uses: asdf-vm/actions/plugin-test@v3
         with:
-          command: bat --help
+          command: bat -V

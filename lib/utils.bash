@@ -3,9 +3,10 @@
 set -euo pipefail
 
 # TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for bat.
-# GH_REPO="https://github.com/sharkdp/bat"
+
 REPO_ORG="sharkdp"
 TOOL_NAME="bat"
+GH_REPO="https://github.com/$REPO_ORG/$TOOL_NAME"
 TOOL_TEST="bat"
 
 fail() {
@@ -26,12 +27,10 @@ sort_versions() {
 }
 
 list_github_tags() {
-	cmd="curl --silent --location ${curl_opts[*]}"
-	releases_path="https://api.github.com/repos/$REPO_ORG/$TOOL_NAME/releases"
-
-	versions=$(eval "$cmd $releases_path" | grep -oE "tag_name\":\s?\".*\"," | sed 's/tag_name\": *\"//;s/\",//' | grep -v "nightly")
-
-	echo "$versions"
+	git ls-remote --tags --refs "$GH_REPO" |
+		grep -o 'refs/tags/.*' | cut -d/ -f3- |
+		sed -E 's/^v([0-9]+\.[0-9]+\.[0-9]+).*$/\1/' |
+		grep -E '^[0-9]+\.[0-9]+\.[0-9]+$'
 }
 
 list_all_versions() {
@@ -81,7 +80,7 @@ download_release() {
 
 	# TODO: Adapt the release URL convention for bat
 	# https://github.com/sharkdp/bat/releases/download/v0.24.0/bat-v0.24.0-x86_64-unknown-linux-gnu.tar.gz
-	url="https://github.com/$REPO_ORG/$TOOL_NAME/releases/download/${version}/bat-${version}-${cpu}-${platform}"
+	url="$GH_REPO/releases/download/v${version}/bat-v${version}-${cpu}-${platform}"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" "$url" || fail "Could not download $url"

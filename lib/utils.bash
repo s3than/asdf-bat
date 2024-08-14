@@ -27,7 +27,7 @@ sort_versions() {
 }
 
 list_github_tags() {
-  curl "${curl_opts[@]}" "https://api.github.com/repos/$REPO_ORG/$TOOL_NAME/releases" | jq '.[].name | sub("^v"; "")'
+	curl "${curl_opts[@]}" "https://api.github.com/repos/$REPO_ORG/$TOOL_NAME/releases" | jq '.[].name | sub("^v"; "")'
 }
 
 list_all_versions() {

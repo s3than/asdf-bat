@@ -27,10 +27,7 @@ sort_versions() {
 }
 
 list_github_tags() {
-	git ls-remote --tags --refs "$GH_REPO" |
-		grep -o 'refs/tags/.*' | cut -d/ -f3- |
-		sed -E 's/^v([0-9]+\.[0-9]+\.[0-9]+).*$/\1/' |
-		grep -E '^[0-9]+\.[0-9]+\.[0-9]+$'
+  curl "${curl_opts[@]}" "https://api.github.com/repos/$REPO_ORG/$TOOL_NAME/releases" | jq '.[].name | sub("^v"; "")'
 }
 
 list_all_versions() {
